@@ -1,0 +1,15 @@
+{
+  "name": "incuca-teste-2",
+  "version": "1.0.0",
+  "description": "Simple TODO app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Walker",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2"
+  }
+}
