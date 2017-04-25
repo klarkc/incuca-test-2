@@ -1,13 +1,11 @@
 function TodoService(http) {
+  this.tasks = [];
   var service = this;
 
-  var tasks = service.tasks = [];
-
   var responseHandler = function(res) {
-    tasks.splice(0, tasks.length);
-    res.data.forEach(function(task) {
-      tasks[task.uid] = task;
-    });
+    // Remember to not overwrite tasks reference, aleays update contents instead
+    service.tasks.length = 0;
+    service.tasks.push.apply(service.tasks, res.data);
   };
 
   var errorHandler = function(errorCallback) {
@@ -21,7 +19,7 @@ function TodoService(http) {
   }
 
   service.archiveTask = function (task, errorCallback) {
-    http.delete('/api/' + task.uid).then(responseHandler, errorHandler(errorCallback));
+    http.delete('/api/' + task._id).then(responseHandler, errorHandler(errorCallback));
   }
 
   service.refreshTasks = function(errorCallback) {
