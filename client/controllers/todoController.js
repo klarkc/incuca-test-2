@@ -45,7 +45,7 @@ function TodoController(dialog, todoService) {
     }
   }
 
-  todoService.refreshTasks(controller.getErrorCallback('atualizar tarefas'));
+  todoService.refreshTasks(controller.getErrorCallback('carregar tarefas'));
 }
 
 angular.module('todo').controller('TodoController', ['$mdDialog', 'todoService', TodoController]);

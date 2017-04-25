@@ -10,14 +10,20 @@ var Todos = require('./model.js')(url, 'incuca-test-2');
 
 var sendError = function(res) {
   return function(err) {
-    res.status(500).statusText(err.message);
+    console.log(err);
+    // We don't use res.json because we need
+    // to allow error objects in stringify
+    res.send(JSON.stringify(
+      {error: err},
+      ["error", "name", "message"]
+    ));
   }
 }
 
 var sendAll = function(res) {
   return function() {
     // We should bind because promise changes json context
-    Todos.findAll().then(res.json.bind(res));
+    Todos.findAll().then(res.json.bind(res)).catch(sendError(res));
   }
 }
 
@@ -29,7 +35,7 @@ app.post('/api', function(req, res) {
   var text = req.body.text;
 
   if(!text || typeof text !== 'string' || text.length < 1) {
-    res.status(400).send('O texto da tarefa deve ser preenchido.');
+    sendError(res)(new Error('O texto da tarefa deve ser preenchido.'));
     return;
   }
 
@@ -38,19 +44,21 @@ app.post('/api', function(req, res) {
 
 app.put('/api/:uid', function(req, res) {
   if(!req.params.uid) {
-    res.status(400).send('O UID da tarefa precisa ser enviado.');
+    sendError(res)(new Error('O UID da tarefa precisa ser enviado.'));
     return;
   }
 
-  Todos.update(req.params.uid, res.body).then(sendAll(res));
+  Todos.update(req.params.uid, res.body, sendError(res)).then(sendAll(res));
 });
 
 app.delete('/api/:uid', function(req, res) {
   if(!req.params.uid) {
-    res.status(400).send('O UID da tarefa precisa ser enviado.');
+    sendError(res)(new Error('O UID da tarefa precisa ser enviado.'));
   }
 
-  Todos.delete(req.params.uid).then(sendAll(res));
+  Todos.delete(req.params.uid, sendError(res)).then(sendAll(res));
 });
 
 app.listen(8080);
+
+Todos.closeConnection();

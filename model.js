@@ -14,10 +14,17 @@ function validateUid(uid) {
 }
 
 module.exports = function(url, collection) {
+  var db = null;
+
   var collPromise = new Promise(function(resolve, reject) {
-    mongo.connect(url).then(function(db) {
+    mongo.connect(url, function(err, db) {
+      if (err) {
+        reject(err);
+        return;
+      }
+      db = db;
       resolve(db.collection(collection));
-    }, reject);
+    });
   });
 
   this.findAll = function() {
@@ -28,32 +35,36 @@ module.exports = function(url, collection) {
   }
 
   this.insert = function(text) {
-    validateText(text);
     return collPromise.then(function(collection) {
       var task = {};
       task._id = shortid.generate();
       task.text = text;
       task.done = false;
       console.log('inserting', task);
+      validateText(text);
       return collection.insertOne(task);
     });
   }
 
   this.update = function(uid, task) {
-    validateUid(uid);
-    validateText(task.text);
     return collPromise.then(function(collection) {
       console.log('updating', uid, task);
+      validateUid(uid);
+      validateText(task.text);
       return collection.updateOne({_id: uid}, {$set: task});
     });
   }
 
   this.delete = function(uid) {
-    validateUid(uid);
     return collPromise.then(function(collection) {
       console.log('deleting', uid);
+      validateUid(uid);
       return collection.deleteOne({_id: uid});
     })
+  }
+
+  this.closeConnection = function() {
+    if(db) db.close();
   }
 
   return this;
