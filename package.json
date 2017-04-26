@@ -4,7 +4,8 @@
   "description": "Simple TODO app",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "cd client; bower install; cd ../"
   },
   "author": "Walker",
   "license": "ISC",
@@ -13,5 +14,8 @@
     "express": "^4.15.2",
     "mongodb": "^2.2.26",
     "shortid": "^2.2.8"
+  },
+  "devDependencies": {
+    "bower": "^1.8.0"
   }
 }
