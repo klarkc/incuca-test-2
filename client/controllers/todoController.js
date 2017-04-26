@@ -1,4 +1,4 @@
-function TodoController(dialog, todoService) {
+function TodoController(dialog, todoService, scope) {
   var controller = this;
 
   this.tasks = todoService.tasks;
@@ -45,7 +45,27 @@ function TodoController(dialog, todoService) {
     }
   }
 
+  // Setup Watchers
+  var watchTasks = function(tasks, _, scope) {
+    tasks.forEach(function(task){
+      // For Each new task of the collection, setup the update listener
+      scope.$watch(function(){return task;}, function(changedTask, originalTask) {
+        if(changedTask === originalTask) return;
+        todoService.updateTask(
+          changedTask,
+          controller.getErrorCallback('atualizar tarefa')
+        );
+      }, true);
+    });
+  };
+  // Setup a listener to controller.tasks array
+  scope.$watchCollection(function(){return controller.tasks;}, watchTasks);
+
+  // Initial Tasks Load
   todoService.refreshTasks(controller.getErrorCallback('carregar tarefas'));
+
+  // Setup refresh every 15s
+  window.setInterval(todoService.refreshTasks.bind(todoService), 15000);
 }
 
-angular.module('todo').controller('TodoController', ['$mdDialog', 'todoService', TodoController]);
+angular.module('todo').controller('TodoController', ['$mdDialog', 'todoService', '$scope', TodoController]);

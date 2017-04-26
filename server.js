@@ -32,6 +32,11 @@ app.get('/api', function(req, res) {
 });
 
 app.post('/api', function(req, res) {
+  if(!req.body) {
+    sendError(req)(new Error('O corpo da requisição não foi enviado'));
+    return;
+  }
+
   var text = req.body.text;
 
   if(!text || typeof text !== 'string' || text.length < 1) {
@@ -42,13 +47,18 @@ app.post('/api', function(req, res) {
   Todos.insert(text).then(sendAll(res));
 });
 
-app.put('/api/:uid', function(req, res) {
+app.post('/api/:uid', function(req, res) {
+  if(!req.body) {
+    sendError(res)(new Error('O corpo da requisição não foi enviado'));
+    return;
+  }
+
   if(!req.params.uid) {
     sendError(res)(new Error('O UID da tarefa precisa ser enviado.'));
     return;
   }
 
-  Todos.update(req.params.uid, res.body, sendError(res)).then(sendAll(res));
+  Todos.update(req.params.uid, req.body, sendError(res)).then(sendAll(res));
 });
 
 app.delete('/api/:uid', function(req, res) {

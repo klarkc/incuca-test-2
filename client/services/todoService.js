@@ -33,6 +33,10 @@ function TodoService(http) {
     http.get('/api').then(responseHandler).catch(errorCallback);
   }
 
+  service.updateTask = function(task, errorCallback) {
+    http.post('/api/' + task._id, task).then(responseHandler).catch(errorCallback);
+  }
+
   return service;
 }
 
